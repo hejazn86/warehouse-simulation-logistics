@@ -14,6 +14,9 @@ packing_time = [3, 8]     # minutes to process order
 sim_time = 8 * 60         # simlulating 8 hours (in minutes)
 
 
+order_log = []
+
+
 
 # Defining the order fullfilment process
 
@@ -26,13 +29,23 @@ def Order_process(env, order_id, warehouse):
         yield request                        # wait until a worker is available
         waiting_time = env.now - arrival_time
         
-        print(f'Order {order_id} waited {waiting_time:.2f} minutes')
+        #print(f'Order {order_id} waited {waiting_time:.2f} minutes')
         
         service_time = random.uniform(*packing_time)   # simulate the packing time
         yield env.timeout(service_time)
+        finish_time = env.now
 
-        print(f'Order {order_id} processed in {service_time:.2f} minutes')
+        #print(f'Order {order_id} processed in {service_time:.2f} minutes')
 
+        #loging the order simulation 
+        order_log.append({
+            'order_id' : order_id,
+            'arrival_time' : arrival_time,
+            'waiting_time' : waiting_time,
+            'service_time' : service_time,
+            'finish_time' : finish_time
+
+        })
 
 
 
@@ -69,4 +82,8 @@ if __name__ == '__main__':
     Run_simulation()
 
 
+df = pd.DataFrame(order_log)
+df.to_csv("warehouse-simulation-logistics/data/processed/order_log.csv", index=False)
 
+
+print("/n saved simulation results to data/processed/order_log.csv")
